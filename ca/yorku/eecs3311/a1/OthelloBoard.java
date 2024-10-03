@@ -42,7 +42,12 @@ public class OthelloBoard {
 	 * @return P2 or P1, the opposite of player
 	 */
 	public static char otherPlayer(char player) {
-		return EMPTY;
+		if(player==P1){
+			return P2;
+		}
+		else{
+			return P1;
+		}
 	}
 
 	/**
@@ -52,7 +57,10 @@ public class OthelloBoard {
 	 * @return P1,P2 or EMPTY, EMPTY is returned for an invalid (row,col)
 	 */
 	public char get(int row, int col) {
-		return EMPTY;
+		if(row>dim || col>dim){
+			return EMPTY;
+		}
+		return board[row][col];
 	}
 
 	/**
@@ -63,6 +71,9 @@ public class OthelloBoard {
 	 *         a position on the board.
 	 */
 	private boolean validCoordinate(int row, int col) {
+		if(row>dim || col>dim){
+			return false;
+		}
 		return true;
 	}
 
