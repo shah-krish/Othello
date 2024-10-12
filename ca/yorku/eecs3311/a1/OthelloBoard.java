@@ -18,7 +18,8 @@ public class OthelloBoard {
 	public static final char EMPTY = ' ', P1 = 'X', P2 = 'O', BOTH = 'B';
 	private int dim = 8;
 	private char[][] board;
-
+	private int p1Tokens=2;
+	private int p2Tokens=2;
 	public OthelloBoard(int dim) {
 		this.dim = dim;
 		board = new char[this.dim][this.dim];
@@ -57,10 +58,10 @@ public class OthelloBoard {
 	 * @return P1,P2 or EMPTY, EMPTY is returned for an invalid (row,col)
 	 */
 	public char get(int row, int col) {
-		if(row>dim || col>dim){
-			return EMPTY;
+		if (validCoordinate(row, col)) {
+			return board[row][col];
 		}
-		return board[row][col];
+		return EMPTY;
 	}
 
 	/**
@@ -71,10 +72,7 @@ public class OthelloBoard {
 	 *         a position on the board.
 	 */
 	private boolean validCoordinate(int row, int col) {
-		if(row>dim || col>dim){
-			return false;
-		}
-		return true;
+		return row >= 0 && row < dim && col >= 0 && col < dim;
 	}
 
 	/**
@@ -96,8 +94,68 @@ public class OthelloBoard {
 	 *         alternation
 	 */
 	private char alternation(int row, int col, int drow, int dcol) {
-		return EMPTY;
+		if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
+			return EMPTY;
+		}
+
+		// Move one step in the specified direction
+		row += drow;
+		col += dcol;
+
+		// If the next square is not the opponent, return EMPTY
+		char opponent = otherPlayer(board[row - drow][col - dcol]);
+		if (!validCoordinate(row, col) || board[row][col] != opponent) {
+			return EMPTY;
+		}
+
+		// Continue moving in the specified direction, looking for the current player's token
+		while (validCoordinate(row, col)) {
+			if (board[row][col] == EMPTY) {
+				return EMPTY;
+			} else if (board[row][col] == otherPlayer(opponent)) {
+				return board[row][col]; // Found the player's token, valid alternation
+			}
+			row += drow;
+			col += dcol;
+		}
+
+		return EMPTY; // No valid alternation found
 	}
+
+
+		/*
+			int firstRow = row, firstCol = col;
+			while(true){
+				//I am using a sliding window approach in a way I think
+				//making a window of 3 elements
+				int secondRow = firstRow+drow, secondCol = firstCol+dcol;
+				int thirdRow = secondRow+drow, thirdCol = secondCol+dcol;
+
+				//if the third(last) index is out of bounds we exit
+				if (thirdRow < 0 || thirdRow >= board.length || thirdCol < 0 || thirdCol >= board[thirdRow].length) {
+					return EMPTY;
+				}
+
+				//Extracting elements from the 3 indexes
+				char first = board[firstRow][firstCol];
+				char second = board[secondRow][secondCol];
+				char third = board[thirdRow][thirdCol];
+
+				//If any of the elements is empty i just return empty
+				if(first==EMPTY||second==EMPTY||third==EMPTY){
+					return EMPTY;
+				}
+
+
+				if ((first == P1 && second == P2 && third == P1) ||
+						(first == P2 && second == P1 && third == P2)) {
+					return first;
+				}
+				firstRow+=drow;
+				firstCol+=dcol;
+			}
+			 */
+
 
 	/**
 	 * flip all other player tokens to player, starting at (row,col) in direction
@@ -115,7 +173,31 @@ public class OthelloBoard {
 	 *         board is reached before seeing a player token.
 	 */
 	private int flip(int row, int col, int drow, int dcol, char player) {
-		return -1;
+		int counter = 1;
+		int r = row, c = col;
+		if(alternation(row,col,drow,col) == EMPTY||alternation(row,col,drow,dcol)==player){
+			return -1;
+		}
+		else{
+			while(board[r][c]!=player){
+				board[r][c] = player;
+				r+= drow;
+				c+=dcol;
+				counter++;
+				incrementTokens(player);
+			}
+			return counter;
+		}
+	}
+	private void incrementTokens(char player){
+		if(player == P1){
+			p1Tokens++;
+			p2Tokens--;
+		}
+		else{
+			p2Tokens++;
+			p1Tokens--;
+		}
 	}
 
 	/**
@@ -128,16 +210,30 @@ public class OthelloBoard {
 	 * @return P1,P2,EMPTY
 	 */
 	private char hasMove(int row, int col, int drow, int dcol) {
-		return EMPTY;
+		if(!validCoordinate(row,col)||board[row][col]==EMPTY){
+			return EMPTY;
+		}
+		return alternation(row,row,drow,dcol);
 	}
-
+	/*
+	private char getOpponentPiece(int r, int c, int drow, int dcol) {
+		char prev = board[r - drow][c - dcol];
+		if (prev == P1) {
+			return P2;
+		} else if (prev == P2) {
+			return P1;
+		} else {
+			return EMPTY;
+		}
+	}
+	 */
 	/**
 	 * 
 	 * @return whether P1,P2 or BOTH have a move somewhere on the board, EMPTY if
 	 *         neither do.
 	 */
 	public char hasMove() {
-		return EMPTY;
+		return P1;
 	}
 
 	/**
@@ -153,8 +249,15 @@ public class OthelloBoard {
 	public boolean move(int row, int col, char player) {
 		// HINT: Use some of the above helper methods to get this methods
 		// job done!!
-
-		return true;
+		char playerToMove = hasMove(row,col,0,0);
+		if (playerToMove == player){
+			board[row][col] = player;
+			flip(row+0,col+1,0,1,player);
+			flip(row+1,col+0,1,0,player);
+			flip(row+1,col+1,1,1,player);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -163,8 +266,15 @@ public class OthelloBoard {
 	 * @return the number of tokens on the board for player
 	 */
 	public int getCount(char player) {
-		int count = 0;
-		return count;
+		int counter=0;
+		for(int i = 0;i<board.length;i++){
+			for(int j = 0; j<board.length;j++){
+				if(board[i][j]==player){
+					counter++;
+				}
+			}
+		}
+		return counter;
 	}
 
 	/**
@@ -235,6 +345,8 @@ public class OthelloBoard {
 				System.out.println("alternation=" + ob.alternation(4, 4, drow, dcol));
 			}
 		}
+		System.out.println("here");
+
 
 		for (int row = 0; row < ob.dim; row++) {
 			for (int col = 0; col < ob.dim; col++) {
@@ -252,7 +364,6 @@ public class OthelloBoard {
 				System.out.println("alternation=" + ob.alternation(4, 4, drow, dcol));
 			}
 		}
-
 		// Can't move to (4,4) since the square is not empty
 		System.out.println("Trying to move to (4,4) move=" + ob.move(4, 4, P2));
 
