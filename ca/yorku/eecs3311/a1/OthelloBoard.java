@@ -94,7 +94,28 @@ public class OthelloBoard {
 	 *         alternation
 	 */
 	private char alternation(int row, int col, int drow, int dcol) {
-		if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
+		if (!validCoordinate(row, col) || board[row][col] == EMPTY || (drow==0&&dcol==0)) {
+			return EMPTY;
+		}
+		char player = board[row][col];
+		char opponent = otherPlayer(player);
+		while(validCoordinate(row,col)) {
+			if (board[row][col] == opponent) {
+				return opponent;
+			}
+			else if(board[row][col] == EMPTY){
+				return EMPTY;
+			}
+			else {
+				row += drow;
+				col += dcol;
+				//System.out.println("r = " + row + " c =" + row);
+			}
+		}
+		return EMPTY;
+	}
+/*
+if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 			return EMPTY;
 		}
 
@@ -120,8 +141,7 @@ public class OthelloBoard {
 		}
 
 		return EMPTY; // No valid alternation found
-	}
-
+ */
 
 		/*
 			int firstRow = row, firstCol = col;
@@ -174,11 +194,14 @@ public class OthelloBoard {
 	 */
 	private int flip(int row, int col, int drow, int dcol, char player) {
 		int counter = 1;
-		int r = row, c = col;
-		if(alternation(row,col,drow,col) == EMPTY||alternation(row,col,drow,dcol)==player){
+		int r = row+drow, c = col+dcol;
+		char opponent = otherPlayer(player);
+		if(alternation(row+drow,col+dcol,drow,dcol) == EMPTY||alternation(row+drow,col+dcol,drow,dcol)==opponent){
+			// System.out.println("row= "+row+" col="+col +"drow= "+drow+" dcol= "+dcol);
 			return -1;
 		}
 		else{
+			System.out.println("r="+r+" c="+c+" "+drow+" "+dcol);
 			while(board[r][c]!=player){
 				board[r][c] = player;
 				r+= drow;
@@ -210,10 +233,10 @@ public class OthelloBoard {
 	 * @return P1,P2,EMPTY
 	 */
 	private char hasMove(int row, int col, int drow, int dcol) {
-		if(!validCoordinate(row,col)||board[row][col]==EMPTY){
+		if(!validCoordinate(row,col)){
 			return EMPTY;
 		}
-		return alternation(row,row,drow,dcol);
+		return alternation(row+drow,row+dcol,drow,dcol);
 	}
 	/*
 	private char getOpponentPiece(int r, int c, int drow, int dcol) {
@@ -249,15 +272,22 @@ public class OthelloBoard {
 	public boolean move(int row, int col, char player) {
 		// HINT: Use some of the above helper methods to get this methods
 		// job done!!
-		char playerToMove = hasMove(row,col,0,0);
-		if (playerToMove == player){
-			board[row][col] = player;
-			flip(row+0,col+1,0,1,player);
-			flip(row+1,col+0,1,0,player);
-			flip(row+1,col+1,1,1,player);
-			return true;
+//		char playerToMove = hasMove(row,col,0,0);
+//		System.out.println(playerToMove);
+//		if (playerToMove == player){
+		if(!validCoordinate(row,col)||board[row][col]!=EMPTY){
+			return false;
 		}
-		return false;
+		else {
+			board[row][col] = player;
+			for (int drow = -1; drow <= 1; drow++) {
+				for (int dcol = -1; dcol <= 1; dcol++) {
+					flip(row,col,drow,dcol,player);
+				}
+			}
+			return true;
+			//}
+		}
 	}
 
 	/**
