@@ -7,14 +7,14 @@ package ca.yorku.eecs3311.a1;
  * given coordinates are on the board, whether either of the players have a move
  * somewhere on the board, what happens when a player makes a move at a specific
  * location (the opposite players tokens are flipped).
- * 
+ *
  * Othello makes use of the OthelloBoard.
- * 
+ *
  * @author Ilir
  *
  */
 public class OthelloBoard {
-	
+
 	public static final char EMPTY = ' ', P1 = 'X', P2 = 'O', BOTH = 'B';
 	private int dim = 8;
 	private char[][] board;
@@ -38,7 +38,7 @@ public class OthelloBoard {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param player either P1 or P2
 	 * @return P2 or P1, the opposite of player
 	 */
@@ -52,7 +52,7 @@ public class OthelloBoard {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param row starting row, in {0,...,dim-1} (typically {0,...,7})
 	 * @param col starting col, in {0,...,dim-1} (typically {0,...,7})
 	 * @return P1,P2 or EMPTY, EMPTY is returned for an invalid (row,col)
@@ -65,7 +65,7 @@ public class OthelloBoard {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param row starting row, in {0,...,dim-1} (typically {0,...,7})
 	 * @param col starting col, in {0,...,dim-1} (typically {0,...,7})
 	 * @return whether (row,col) is a position on the board. Example: (6,12) is not
@@ -84,7 +84,7 @@ public class OthelloBoard {
 	 * alternation(row,col,drow,dcol)==P1, then placing P1 right before (row,col),
 	 * assuming that square is EMPTY, is a valid move, resulting in a collection of
 	 * P2 being flipped.
-	 * 
+	 *
 	 * @param row  starting row, in {0,...,dim-1} (typically {0,...,7})
 	 * @param col  starting col, in {0,...,dim-1} (typically {0,...,7})
 	 * @param drow the row direction, in {-1,0,1}
@@ -94,11 +94,16 @@ public class OthelloBoard {
 	 *         alternation
 	 */
 	private char alternation(int row, int col, int drow, int dcol) {
+		//System.out.println(row+" "+col+" "+drow+" "+dcol);
 		if (!validCoordinate(row, col) || board[row][col] == EMPTY || (drow==0&&dcol==0)) {
+			//System.out.println("here :(((");
 			return EMPTY;
 		}
+		//System.out.println("hereeeee");
 		char player = board[row][col];
+		//System.out.println(player);
 		char opponent = otherPlayer(player);
+		//System.out.println(opponent);
 		while(validCoordinate(row,col)) {
 			if (board[row][col] == opponent) {
 				return opponent;
@@ -181,7 +186,7 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 	 * flip all other player tokens to player, starting at (row,col) in direction
 	 * (drow, dcol). Example: If (drow,dcol)=(0,1) and player==O then XXXO will
 	 * result in a flip to OOOO
-	 * 
+	 *
 	 * @param row    starting row, in {0,...,dim-1} (typically {0,...,7})
 	 * @param col    starting col, in {0,...,dim-1} (typically {0,...,7})
 	 * @param drow   the row direction, in {-1,0,1}
@@ -193,7 +198,7 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 	 *         board is reached before seeing a player token.
 	 */
 	private int flip(int row, int col, int drow, int dcol, char player) {
-		int counter = 1;
+		int counter = 0;
 		int r = row+drow, c = col+dcol;
 		char opponent = otherPlayer(player);
 		if(alternation(row+drow,col+dcol,drow,dcol) == EMPTY||alternation(row+drow,col+dcol,drow,dcol)==opponent){
@@ -201,13 +206,13 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 			return -1;
 		}
 		else{
-			System.out.println("r="+r+" c="+c+" "+drow+" "+dcol);
+			//System.out.println("r="+r+" c="+c+" "+drow+" "+dcol);
 			while(board[r][c]!=player){
 				board[r][c] = player;
 				r+= drow;
 				c+=dcol;
 				counter++;
-				incrementTokens(player);
+				//incrementTokens(player);
 			}
 			return counter;
 		}
@@ -225,7 +230,7 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 
 	/**
 	 * Return which player has a move (row,col) in direction (drow,dcol).
-	 * 
+	 *
 	 * @param row  starting row, in {0,...,dim-1} (typically {0,...,7})
 	 * @param col  starting col, in {0,...,dim-1} (typically {0,...,7})
 	 * @param drow the row direction, in {-1,0,1}
@@ -236,7 +241,9 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 		if(!validCoordinate(row,col)){
 			return EMPTY;
 		}
-		return alternation(row+drow,row+dcol,drow,dcol);
+		//System.out.println("hasmove row= "+row+" col="+col +"drow= "+drow+" dcol= "+dcol);
+		//System.out.println("goingToAlt row= "+(row+drow)+" col="+(row+dcol) +"drow= "+drow+" dcol= "+dcol);
+		return alternation((row+drow),(col+dcol),drow,dcol);
 	}
 	/*
 	private char getOpponentPiece(int r, int c, int drow, int dcol) {
@@ -251,19 +258,32 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 	}
 	 */
 	/**
-	 * 
+	 *
 	 * @return whether P1,P2 or BOTH have a move somewhere on the board, EMPTY if
 	 *         neither do.
 	 */
 	public char hasMove() {
-		return P1;
+		for (int row = 0; row < this.dim; row++) {
+			for (int col = 0; col < this.dim; col++) {
+				if (board[row][col] == EMPTY) {
+					for (int drow = -1; drow <= 1; drow++) {
+						for (int dcol = -1; dcol <= 1; dcol++) {
+							if (hasMove(row, col, drow, dcol) != EMPTY) {
+								return board[row][col];
+							}
+						}
+					}
+				}
+			}
+		}
+		return EMPTY;
 	}
 
 	/**
 	 * Make a move for player at position (row,col) according to Othello rules,
 	 * making appropriate modifications to the board. Nothing is changed if this is
 	 * not a valid move.
-	 * 
+	 *
 	 * @param row    starting row, in {0,...,dim-1} (typically {0,...,7})
 	 * @param col    starting col, in {0,...,dim-1} (typically {0,...,7})
 	 * @param player P1 or P2
@@ -279,19 +299,23 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 			return false;
 		}
 		else {
-			board[row][col] = player;
 			for (int drow = -1; drow <= 1; drow++) {
 				for (int dcol = -1; dcol <= 1; dcol++) {
-					flip(row,col,drow,dcol,player);
+					//System.out.println("move row= "+row+" col="+col +"drow= "+drow+" dcol= "+dcol);
+					if(hasMove(row,col,drow,dcol)==player){
+						board[row][col] = player;
+						flip(row,col,drow,dcol,player);
+						return true;
+					}
 				}
 			}
-			return true;
+			return false;
 			//}
 		}
 	}
 
 	/**
-	 * 
+	 *
 	 * @param player P1 or P2
 	 * @return the number of tokens on the board for player
 	 */
@@ -351,11 +375,11 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 
 	/**
 	 * A quick test of OthelloBoard. Output is on assignment page.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+
 		OthelloBoard ob = new OthelloBoard(8);
 		System.out.println(ob.toString());
 		System.out.println("getCount(P1)=" + ob.getCount(P1));
@@ -414,4 +438,3 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 
 	}
 }
-
