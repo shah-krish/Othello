@@ -217,6 +217,17 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 			return counter;
 		}
 	}
+	public int flipCount(int row, int col, int drow, int dcol, char player){
+		int counter = 0;
+		int r = row+drow, c = col+dcol;
+		while(board[r][c]!=player){
+			r+= drow;
+			c+=dcol;
+			counter++;
+
+		}
+		return counter;
+	}
 	private void incrementTokens(char player){
 		if(player == P1){
 			p1Tokens++;
@@ -245,6 +256,10 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 		//System.out.println("goingToAlt row= "+(row+drow)+" col="+(row+dcol) +"drow= "+drow+" dcol= "+dcol);
 		return alternation((row+drow),(col+dcol),drow,dcol);
 	}
+
+	public char whoseMove(int row, int col, int drow, int dcol){
+		return hasMove(row,col,drow,dcol);
+	}
 	/*
 	private char getOpponentPiece(int r, int c, int drow, int dcol) {
 		char prev = board[r - drow][c - dcol];
@@ -263,21 +278,42 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 	 *         neither do.
 	 */
 	public char hasMove() {
-		for (int row = 0; row < this.dim; row++) {
-			for (int col = 0; col < this.dim; col++) {
-				if (board[row][col] == EMPTY) {
-					for (int drow = -1; drow <= 1; drow++) {
-						for (int dcol = -1; dcol <= 1; dcol++) {
-							if (hasMove(row, col, drow, dcol) != EMPTY) {
-								return board[row][col];
-							}
+		boolean isP1 = false;
+		boolean isP2 = false;
+		for (int i = 0; i < dim; i++) {
+			for (int j = 0; j < dim; j++) {
+				for (int drow = -1; drow <= 1; drow++) {
+					for (int dcol = -1; dcol <= 1; dcol++) {
+						if(hasMove(i,j,drow,dcol)==P1){
+							isP1 = true;
+						}
+						else if(hasMove(i,j,drow,dcol)==P2){
+							isP2 = true;
 						}
 					}
 				}
 			}
 		}
+		return ifBoth(isP1,isP2);
+	}
+
+	/**
+	 *
+	 * @return whether P1,P2 or BOTH are true, EMPTY if none is true.
+	 */
+	private char ifBoth(boolean isP1, boolean isP2){
+		if(isP1==true && isP2==true){
+			return BOTH;
+		}
+		else if(isP1==true){
+			return P1;
+		}
+		else if(isP2==true){
+			return P2;
+		}
 		return EMPTY;
 	}
+
 
 	/**
 	 * Make a move for player at position (row,col) according to Othello rules,
@@ -299,17 +335,18 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 			return false;
 		}
 		else {
+			boolean moved = false;
 			for (int drow = -1; drow <= 1; drow++) {
 				for (int dcol = -1; dcol <= 1; dcol++) {
 					//System.out.println("move row= "+row+" col="+col +"drow= "+drow+" dcol= "+dcol);
 					if(hasMove(row,col,drow,dcol)==player){
 						board[row][col] = player;
 						flip(row,col,drow,dcol,player);
-						return true;
+						moved = true;
 					}
 				}
 			}
-			return false;
+			return moved;
 			//}
 		}
 	}

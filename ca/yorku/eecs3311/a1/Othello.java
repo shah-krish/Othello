@@ -26,6 +26,25 @@ public class Othello {
 	}
 
 	/**
+	 * return dimension of the board.
+	 *
+	 * @return DIMENSION
+	 */
+
+	public int getDimension(){
+		return DIMENSION;
+	}
+
+	/**
+	 *
+	 * @param row starting row, in {0,...,dim-1} (typically {0,...,7})
+	 * @param col starting col, in {0,...,dim-1} (typically {0,...,7})
+	 * @return P1,P2 or EMPTY, EMPTY is returned for an invalid (row,col)
+	 */
+	public char get(int row, int col) {
+		return board.get(row,col);
+	}
+	/**
 	 * return P1,P2 or EMPTY depending on who moves next.
 	 *
 	 * @return P1, P2 or EMPTY
@@ -49,8 +68,13 @@ public class Othello {
 		//System.out.println(a);
 		if (a) {
 			whosTurn = board.otherPlayer(playerToMove);
+			numMoves++;
 		}
 		return a;
+	}
+
+	private int flipCount(int row, int col, int drow, int dcol, char player){
+		return board.flipCount(row,col,drow,dcol,player);
 	}
 
 	/**
@@ -61,6 +85,13 @@ public class Othello {
 		return board.getCount(player);
 	}
 
+	public char hasMove(int row, int col, int drow, int dcol){
+		return board.whoseMove(row,col,drow,dcol);
+	}
+
+	public int getCount(int row, int col, int drow, int dcol, char player){
+		return board.flipCount(row,col,drow,dcol,player);
+	}
 	/**
 	 * Returns the winner of the game.
 	 *
@@ -80,9 +111,7 @@ public class Othello {
 	 * @return whether the game is over (no player can move next)
 	 */
 	public boolean isGameOver() {
-		int p1 = getCount(OthelloBoard.P1);
-		int p2 = getCount(OthelloBoard.P2);
-		return p1 + p2 == 64;
+		return board.hasMove()==OthelloBoard.EMPTY;
 	}
 
 	/**
@@ -91,6 +120,7 @@ public class Othello {
 	public String getBoardString() {
 		return board.toString();
 	}
+
 
 	/**
 	 * run this to test the current class. We play a completely random game. DO NOT
@@ -106,12 +136,11 @@ public class Othello {
 		System.out.println(o.getBoardString());
 //		int row = 2;
 //		int col = 4;
-//		//System.out.println(o.move(row, col));
 //		if (o.move(row, col)) {
 //			System.out.println("makes move (" + row + "," + col + ")");
 //			System.out.println(o.getBoardString() + o.getWhosTurn() + " moves next");
 //		}
-//			}
+
 		while (!o.isGameOver()) {
 			int row = rand.nextInt(8);
 			int col = rand.nextInt(8);
@@ -123,3 +152,4 @@ public class Othello {
 		}
 	}
 }
+

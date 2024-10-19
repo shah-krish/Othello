@@ -20,7 +20,6 @@ public class PlayerHuman {
 	private char player;
 
 	public PlayerHuman(Othello othello, char player) {
-		
 		this.othello = othello;
 		this.player = player;
 	}
