@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"ca.yorku.eecs3311.a1","l":"Move"}];updateSearchResults();

@@ -18,8 +18,6 @@ public class OthelloBoard {
 	public static final char EMPTY = ' ', P1 = 'X', P2 = 'O', BOTH = 'B';
 	private int dim = 8;
 	private char[][] board;
-	private int p1Tokens=2;
-	private int p2Tokens=2;
 	public OthelloBoard(int dim) {
 		this.dim = dim;
 		board = new char[this.dim][this.dim];
@@ -45,6 +43,9 @@ public class OthelloBoard {
 	public static char otherPlayer(char player) {
 		if(player==P1){
 			return P2;
+		}
+		else if(player == EMPTY){
+			return EMPTY;
 		}
 		else{
 			return P1;
@@ -94,16 +95,11 @@ public class OthelloBoard {
 	 *         alternation
 	 */
 	private char alternation(int row, int col, int drow, int dcol) {
-		//System.out.println(row+" "+col+" "+drow+" "+dcol);
 		if (!validCoordinate(row, col) || board[row][col] == EMPTY || (drow==0&&dcol==0)) {
-			//System.out.println("here :(((");
 			return EMPTY;
 		}
-		//System.out.println("hereeeee");
 		char player = board[row][col];
-		//System.out.println(player);
 		char opponent = otherPlayer(player);
-		//System.out.println(opponent);
 		while(validCoordinate(row,col)) {
 			if (board[row][col] == opponent) {
 				return opponent;
@@ -114,72 +110,10 @@ public class OthelloBoard {
 			else {
 				row += drow;
 				col += dcol;
-				//System.out.println("r = " + row + " c =" + row);
 			}
 		}
 		return EMPTY;
 	}
-/*
-if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
-			return EMPTY;
-		}
-
-		// Move one step in the specified direction
-		row += drow;
-		col += dcol;
-
-		// If the next square is not the opponent, return EMPTY
-		char opponent = otherPlayer(board[row - drow][col - dcol]);
-		if (!validCoordinate(row, col) || board[row][col] != opponent) {
-			return EMPTY;
-		}
-
-		// Continue moving in the specified direction, looking for the current player's token
-		while (validCoordinate(row, col)) {
-			if (board[row][col] == EMPTY) {
-				return EMPTY;
-			} else if (board[row][col] == otherPlayer(opponent)) {
-				return board[row][col]; // Found the player's token, valid alternation
-			}
-			row += drow;
-			col += dcol;
-		}
-
-		return EMPTY; // No valid alternation found
- */
-
-		/*
-			int firstRow = row, firstCol = col;
-			while(true){
-				//I am using a sliding window approach in a way I think
-				//making a window of 3 elements
-				int secondRow = firstRow+drow, secondCol = firstCol+dcol;
-				int thirdRow = secondRow+drow, thirdCol = secondCol+dcol;
-
-				//if the third(last) index is out of bounds we exit
-				if (thirdRow < 0 || thirdRow >= board.length || thirdCol < 0 || thirdCol >= board[thirdRow].length) {
-					return EMPTY;
-				}
-
-				//Extracting elements from the 3 indexes
-				char first = board[firstRow][firstCol];
-				char second = board[secondRow][secondCol];
-				char third = board[thirdRow][thirdCol];
-
-				//If any of the elements is empty i just return empty
-				if(first==EMPTY||second==EMPTY||third==EMPTY){
-					return EMPTY;
-				}
-
-
-				if ((first == P1 && second == P2 && third == P1) ||
-						(first == P2 && second == P1 && third == P2)) {
-					return first;
-				}
-				firstRow+=drow;
-				firstCol+=dcol;
-			}
-			 */
 
 
 	/**
@@ -202,42 +136,39 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 		int r = row+drow, c = col+dcol;
 		char opponent = otherPlayer(player);
 		if(alternation(row+drow,col+dcol,drow,dcol) == EMPTY||alternation(row+drow,col+dcol,drow,dcol)==opponent){
-			// System.out.println("row= "+row+" col="+col +"drow= "+drow+" dcol= "+dcol);
 			return -1;
 		}
 		else{
-			//System.out.println("r="+r+" c="+c+" "+drow+" "+dcol);
 			while(board[r][c]!=player){
 				board[r][c] = player;
 				r+= drow;
 				c+=dcol;
 				counter++;
-				//incrementTokens(player);
 			}
 			return counter;
 		}
 	}
-	public int flipCount(int row, int col, int drow, int dcol, char player){
-		int counter = 0;
-		int r = row+drow, c = col+dcol;
-		while(board[r][c]!=player){
-			r+= drow;
-			c+=dcol;
-			counter++;
 
+	public char[][] getBoard() {
+		char[][] boardCopy = new char[this.dim][this.dim];
+		for (int row = 0; row < this.dim; row++) {
+			for (int col = 0; col < this.dim; col++) {
+				boardCopy[row][col] = this.board[row][col];
+			}
 		}
-		return counter;
+		return boardCopy;
 	}
-	private void incrementTokens(char player){
-		if(player == P1){
-			p1Tokens++;
-			p2Tokens--;
-		}
-		else{
-			p2Tokens++;
-			p1Tokens--;
-		}
+	public OthelloBoard(char[][] existingBoard) {
+		this.dim = existingBoard.length;
+		this.board = new char[dim][dim];
+		for (int row = 0; row < dim; row++) {
+			for (int col = 0; col < dim; col++) {
+				this.board[row][col] = existingBoard[row][col];
+			}
+ 		}
 	}
+
+
 
 	/**
 	 * Return which player has a move (row,col) in direction (drow,dcol).
@@ -252,26 +183,14 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 		if(!validCoordinate(row,col)){
 			return EMPTY;
 		}
-		//System.out.println("hasmove row= "+row+" col="+col +"drow= "+drow+" dcol= "+dcol);
-		//System.out.println("goingToAlt row= "+(row+drow)+" col="+(row+dcol) +"drow= "+drow+" dcol= "+dcol);
+
 		return alternation((row+drow),(col+dcol),drow,dcol);
 	}
 
 	public char whoseMove(int row, int col, int drow, int dcol){
 		return hasMove(row,col,drow,dcol);
 	}
-	/*
-	private char getOpponentPiece(int r, int c, int drow, int dcol) {
-		char prev = board[r - drow][c - dcol];
-		if (prev == P1) {
-			return P2;
-		} else if (prev == P2) {
-			return P1;
-		} else {
-			return EMPTY;
-		}
-	}
-	 */
+
 	/**
 	 *
 	 * @return whether P1,P2 or BOTH have a move somewhere on the board, EMPTY if
@@ -328,9 +247,6 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 	public boolean move(int row, int col, char player) {
 		// HINT: Use some of the above helper methods to get this methods
 		// job done!!
-//		char playerToMove = hasMove(row,col,0,0);
-//		System.out.println(playerToMove);
-//		if (playerToMove == player){
 		if(!validCoordinate(row,col)||board[row][col]!=EMPTY){
 			return false;
 		}
@@ -338,7 +254,6 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 			boolean moved = false;
 			for (int drow = -1; drow <= 1; drow++) {
 				for (int dcol = -1; dcol <= 1; dcol++) {
-					//System.out.println("move row= "+row+" col="+col +"drow= "+drow+" dcol= "+dcol);
 					if(hasMove(row,col,drow,dcol)==player){
 						board[row][col] = player;
 						flip(row,col,drow,dcol,player);
@@ -347,7 +262,6 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 				}
 			}
 			return moved;
-			//}
 		}
 	}
 
@@ -436,8 +350,6 @@ if (!validCoordinate(row, col) || board[row][col] != EMPTY) {
 				System.out.println("alternation=" + ob.alternation(4, 4, drow, dcol));
 			}
 		}
-		System.out.println("here");
-
 
 		for (int row = 0; row < ob.dim; row++) {
 			for (int col = 0; col < ob.dim; col++) {

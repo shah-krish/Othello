@@ -16,8 +16,8 @@ import java.util.Random;
  *
  */
 public class Othello {
-	public static final int DIMENSION = 8; // This is an 8x8 game
-	private char whosTurn = OthelloBoard.P1; // P1 moves first!
+	public static final int DIMENSION = 8;
+	private char whosTurn = OthelloBoard.P1;
 	private int numMoves = 0;
 	private OthelloBoard board;
 
@@ -44,6 +44,7 @@ public class Othello {
 	public char get(int row, int col) {
 		return board.get(row,col);
 	}
+
 	/**
 	 * return P1,P2 or EMPTY depending on who moves next.
 	 *
@@ -52,6 +53,19 @@ public class Othello {
 	public char getWhosTurn() {
 		return whosTurn;
 	}
+
+	public void setWhosTurn(char player){
+		this.whosTurn = player;
+	}
+
+	public char otherplayer(char player){
+		return  board.otherPlayer(player);
+	}
+
+	public char[][] getBoard() {
+		return board.getBoard(); // Calls getBoard() from OthelloBoard
+	}
+
 
 	/**
 	 * Attempt to make a move for P1 or P2 (depending on whos turn it is) at
@@ -73,10 +87,6 @@ public class Othello {
 		return a;
 	}
 
-	private int flipCount(int row, int col, int drow, int dcol, char player){
-		return board.flipCount(row,col,drow,dcol,player);
-	}
-
 	/**
 	 * @param player P1 or P2
 	 * @return the number of tokens for player on the board
@@ -89,29 +99,33 @@ public class Othello {
 		return board.whoseMove(row,col,drow,dcol);
 	}
 
-	public int getCount(int row, int col, int drow, int dcol, char player){
-		return board.flipCount(row,col,drow,dcol,player);
-	}
+
 	/**
 	 * Returns the winner of the game.
 	 *
 	 * @return P1, P2 or EMPTY for no winner, or the game is not finished.
 	 */
 	public char getWinner() {
-		int p1 = getCount(OthelloBoard.P1);
-		int p2 = getCount(OthelloBoard.P2);
-		if (p1 > p2) {
-			return OthelloBoard.P1;
-		} else {
-			return OthelloBoard.P2;
-		}
+			if(!isGameOver()){
+				return OthelloBoard.EMPTY;
+			}
+			int p1 = getCount(OthelloBoard.P1);
+			int p2 = getCount(OthelloBoard.P2);
+			if (p1 == p2) {
+				return OthelloBoard.EMPTY;
+			} else if (p1 > p2) {
+				return OthelloBoard.P1;
+			} else {
+				return OthelloBoard.P2;
+			}
 	}
+
 
 	/**
 	 * @return whether the game is over (no player can move next)
 	 */
 	public boolean isGameOver() {
-		return board.hasMove()==OthelloBoard.EMPTY;
+		return board.hasMove()==OthelloBoard.EMPTY || (board.getCount(OthelloBoard.P1)+board.getCount(OthelloBoard.P2)==64);
 	}
 
 	/**
@@ -134,17 +148,10 @@ public class Othello {
 
 		Othello o = new Othello();
 		System.out.println(o.getBoardString());
-//		int row = 2;
-//		int col = 4;
-//		if (o.move(row, col)) {
-//			System.out.println("makes move (" + row + "," + col + ")");
-//			System.out.println(o.getBoardString() + o.getWhosTurn() + " moves next");
-//		}
 
 		while (!o.isGameOver()) {
 			int row = rand.nextInt(8);
 			int col = rand.nextInt(8);
-			//System.out.println(o.getWhosTurn()+" "+o.move(row, col)+" "+row+" "+col);
 			if (o.move(row, col)) {
 				System.out.println("makes move (" + row + "," + col + ")");
 				System.out.println(o.getBoardString() + o.getWhosTurn() + " moves next");
